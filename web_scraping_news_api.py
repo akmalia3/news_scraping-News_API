@@ -8,44 +8,38 @@ Original file is located at
 
 # **Dataset Berita Kesehatan di Indonesia Tahun 2023**
 """
-
+# import library
 ! pip install requests
-
-"""7cdd462f17f946cd96f1cbf9456c3207
-https://www.pythonsherpa.com/static/files/html/NewsAPI.html
-"""
 
 import requests
 import pprint
 import json
 import pandas as pd
 
-api_key="7cdd462f17f946cd96f1cbf9456c3207" # news api
+# describe api key 
+api_key="your api key"
 
+# parameter request for news result 
 city = 'Indonesia'
 query = f'{city}'
 main_url=f"https://newsapi.org/v2/top-headlines?country=id&category=health"
 
 parameters = {
-    #'q': 'health', # topik berita
-    'pageSize': 100, # jumlah berita yang ingin ditampilkan
-    'apiKey': api_key, #api key dari web newsapi
+    'q': 'health', # keyword 
+    'pageSize': 100, # count of result
+    'apiKey': api_key, 
     'country': 'id',
     'from': '2023-08-24',
     'to': '2023-09-24',
 }
 
-# You are trying to request results too far in the past. Your plan permits you to request articles as far back as 2023-08-19, but you have requested 2022-01-20.
-# You may need to upgrade to a paid plan.
-
 response = requests.get(main_url, params=parameters) # request get
 response_json = response.json()
 print(response_json.keys())
 
-news = response_json['articles'] # akses artikel
+news = response_json['articles']
 print(news)
 
-# looping untuk mendapatkan data dari api
 data = []
 for i in response_json['articles']:
   article = {
@@ -57,90 +51,10 @@ for i in response_json['articles']:
   }
   data.append(article)
 
-# membuat tabel dari data
+# make result into dataframe
 df = pd.DataFrame(data)
 df
 
-# membuat csv dari tabel
+# make dataframe into csv
 df.to_csv('news.csv')
 
-! pip install wordcloud
-
-from wordcloud import WordCloud
-import matplotlib.pyplot as plt
-
-text_combined = ''
-for a in response_json['articles']:
-  text_combined += a['title'] + ' '
-print(text_combined[0:100])
-
-wordcloud = WordCloud(max_font_size=30).generate(text_combined)
-plt.figure()
-plt.imshow(wordcloud, interpolation='bilinear')
-plt.axis("off")
-plt.show()
-
-"""# **Dataset Kesehatan di Indonesia Google News**
-
-Google News API
-"""
-
-import requests
-import json
-
-"""latitude -6.966667
-longtitude 110.416664
-
-"""
-
-parameter = {'api_key': '651d60fe88ff725f62e7ac88',
-             'q':'kesehatan', # keyword
-             'num': 20, # number of results
-             'gl': 'id',  # country name
-             'lr': 'lang_id', # language
-             #'uule': 'w+CAIQICIfU2VtYXJhbmcsIEphd2EgVGVuZ2FoIEluZG9uZXNpYQ%3D%3D' # encode place Semarang
-             }
-request = requests.get('https://api.serpdog.io/news', params=parameter)
-
-response = request.json()
-print(response.keys())
-
-result = response['news_results']
-print(result)
-
-data = []
-for i in response['news_results']:
-  article = {
-      'title': (i['title']),
-      'source': (i['source']),
-      'url': (i['url']),
-      'description': (i['snippet']),
-      'date': (i['lastUpdated'])
-  }
-  data.append(article)
-
-import pandas as pd
-tabel = pd.DataFrame(data)
-tabel
-
-tabel.to_csv('news_google.csv')
-
-"""Google News"""
-
-from bs4 import BeautifulSoup
-import pprint
-
-req = requests.get('https://www.google.com/search?q=kesehatan&gl=id&tbm=nws&num=100').text
-soup = BeautifulSoup(req, 'lxml')
-berita = soup.find('div', class_='SoaBEf')
-print(berita)
-
-data1 = []
-for a in soup.select('div.SoaBEf'):
-  news = {
-      'link': a.find('a')['href']
-  }
-  data1.append(news)
-
-dataset = pd.DataFrame(data1)
-dataset
